@@ -1,0 +1,230 @@
+---
+title: "Naive_Bayes"
+author: "David Suffolk"
+date: "5/2/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Naive Bayes #  
+  
+### Import Data ###  
+
+```{r}
+library(naivebayes)
+data <- read.csv("./Project 02/nwCrow_bloodParasites_alaska_smith_2007_2008/nwCrow_sampling_alaska_smith_2007_2008.csv")
+data_2 <- read.csv("./Project 02/nwCrow_bloodParasites_alaska_smith_2007_2008/nwCrow_bloodParasites_alaska_smith_2007_2008.csv")
+de <- merge(data, data_2, by=0, all=TRUE)
+head(de)
+```
+
+### One Hot Encoding ###
+
+```{r}
+for(unique_value in unique(de$LOC)){
+ 
+
+de[paste("LOC", unique_value, sep = ".")] <- ifelse(de$LOC == unique_value, 1, 0)
+
+}
+head(de)
+```
+
+### Filter Columns ###
+
+```{r}
+de <- de[,c(7,8,9,10,11,12,14,16,18,23,24,25,26,27,28)]
+head(de)
+```
+ 
+### Factoring ###   
+  
+```{r}
+de$SEX <- as.factor(de$SEX)
+de$AGE <- as.factor(de$AGE)
+de$AKD <- as.factor(de$AKD)
+de$TARSUS <- as.factor(de$TARSUS)
+de$WING <- as.factor(de$WING)
+de$MASS <- as.factor(de$MASS)
+de$LEUC1 <- as.factor(de$LEUC1)
+de$HAEM1 <- as.factor(de$HAEM1)
+de$PLAS1 <- as.factor(de$PLAS1)
+de$LOC.SEWA <- as.factor(de$LOC.SEWA)
+de$LOC.KENA <- as.factor(de$LOC.KENA)
+de$LOC.VALD <- as.factor(de$LOC.VALD)
+de$LOC.HAIN <- as.factor(de$LOC.HAIN)
+de$LOC.JUNE <- as.factor(de$LOC.JUNE)
+de$LOC.HAIN <- as.factor(de$LOC.HAIN)
+```
+
+### Data Partition ###  
+  
+```{r}
+set.seed(1234)
+ind <- sample(2, nrow(de), replace = T, prob = c(0.8,0.2))
+train <- de[ind == 1,]
+test <- de[ind == 2,]
+```
+
+## AKD ##  
+  
+### Model ###  
+  
+```{r}
+model <- naive_bayes(AKD ~ ., data = train, laplace=1)
+```
+
+### Predict ###
+
+```{r}
+p <- predict(model, train, type = 'prob')
+```
+
+### Confusion Matrix ###  
+  
+#### Train ####  
+  
+```{r}
+p1 <- predict(model, train)
+tab1 <- table(p1, train$AKD)
+tab1
+# Misclassification
+incorrect <- 1 - sum(diag(tab1)) / sum(tab1)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+#### Test ####  
+  
+```{r}
+p2 <- predict(model, test)
+tab2 <- table(p2, test$AKD)
+tab2
+# Misclassification
+incorrect <- 1 - sum(diag(tab2)) / sum(tab2)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+## LEUC1 ##  
+  
+### Model ###  
+  
+```{r}
+model <- naive_bayes(LEUC1 ~ ., data = train, laplace=1)
+```
+
+### Predict ###
+
+```{r}
+p <- predict(model, train, type = 'prob')
+```
+
+### Confusion Matrix ###  
+  
+#### Train ####  
+  
+```{r}
+p1 <- predict(model, train)
+tab1 <- table(p1, train$LEUC1)
+tab1
+# Misclassification
+incorrect <- 1 - sum(diag(tab1)) / sum(tab1)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+#### Test ####  
+  
+```{r}
+p2 <- predict(model, test)
+tab2 <- table(p2, test$LEUC1)
+tab2
+# Misclassification
+incorrect <- 1 - sum(diag(tab2)) / sum(tab2)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+## HAEM1 ##  
+  
+### Model ###  
+  
+```{r}
+model <- naive_bayes(HAEM1 ~ ., data = train, laplace=1)
+```
+
+### Predict ###
+
+```{r}
+p <- predict(model, train, type = 'prob')
+```
+
+### Confusion Matrix ###  
+  
+#### Train ####  
+  
+```{r}
+p1 <- predict(model, train)
+tab1 <- table(p1, train$HAEM1)
+tab1
+# Misclassification
+incorrect <- 1 - sum(diag(tab1)) / sum(tab1)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+#### Test ####  
+  
+```{r}
+p2 <- predict(model, test)
+tab2 <- table(p2, test$HAEM1)
+tab2
+# Misclassification
+incorrect <- 1 - sum(diag(tab2)) / sum(tab2)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+## PLAS1 ##  
+  
+### Model ###  
+  
+```{r}
+model <- naive_bayes(PLAS1 ~ ., data = train, laplace=1)
+```
+
+### Predict ###
+
+```{r}
+p <- predict(model, train, type = 'prob')
+```
+
+### Confusion Matrix ###  
+  
+#### Train ####  
+  
+```{r}
+p1 <- predict(model, train)
+tab1 <- table(p1, train$PLAS1)
+tab1
+# Misclassification
+incorrect <- 1 - sum(diag(tab1)) / sum(tab1)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+#### Test ####  
+  
+```{r}
+p2 <- predict(model, test)
+tab2 <- table(p2, test$PLAS1)
+tab2
+# Misclassification
+incorrect <- 1 - sum(diag(tab2)) / sum(tab2)
+correct<- 100*(1 - incorrect)
+correct
+```

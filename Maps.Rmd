@@ -1,0 +1,114 @@
+---
+title: "Maps"
+author: "David Suffolk"
+date: "5/3/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Maps #
+
+### Import Data ###  
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggmap)
+library(maps)
+library(mapdata)
+library(usmap)
+data <- read.csv("./Project 02/nwCrow_bloodParasites_alaska_smith_2007_2008/nwCrow_sampling_alaska_smith_2007_2008.csv")
+data_2 <- read.csv("./Project 02/nwCrow_bloodParasites_alaska_smith_2007_2008/nwCrow_bloodParasites_alaska_smith_2007_2008.csv")
+de <- merge(data, data_2, by=0, all=TRUE)
+head(de)
+```
+
+### Filter Columns and N/A Values###
+
+```{r}
+de <- de[,c(6,5,2,4,7,8,9,10,11,12,13,14,16,18)]
+de<-de[complete.cases(de),]
+head(de)
+```
+
+```{r}
+de_2 <- de[,c(1,2,4)]
+head(de_2)
+```
+
+```{r}
+LEUC1_Count <- de %>% group_by(LOC)  %>% count(LEUC1) %>% filter(LEUC1==1)
+LEUC1_Count_2 <- merge(LEUC1_Count, de_2, by.x='LOC', by.y='LOC', all=TRUE)
+LEUC1_Count_2 <- LEUC1_Count_2[,c(4,5,1,3)]
+head(LEUC1_Count_2)
+```
+
+```{r}
+HAEM1_Count <- de %>% group_by(LOC)  %>% count(HAEM1) %>% filter(HAEM1==1)
+HAEM1_Count_2 <- merge(HAEM1_Count, de_2, by.x='LOC', by.y='LOC', all=TRUE)
+HAEM1_Count_2 <- HAEM1_Count_2[,c(4,5,1,3)]
+head(HAEM1_Count_2)
+```
+
+```{r}
+PLAS1_Count <- de %>% group_by(LOC)  %>% count(PLAS1) %>% filter(PLAS1==1)
+PLAS1_Count_2 <- merge(PLAS1_Count, de_2, by.x='LOC', by.y='LOC', all=TRUE)
+PLAS1_Count_2 <- PLAS1_Count_2[,c(4,5,1,3)]
+head(PLAS1_Count_2)
+```
+
+### Basic Plot ###
+
+```{r}
+plot_usmap("states", include=c("AK"))
+```
+
+```{r}
+de <- data.frame(de)
+transformed_data <- usmap_transform(de)
+head(transformed_data)
+```
+
+```{r}
+plot_usmap("states", include=c("AK")) + 
+  geom_point(data = transformed_data, 
+             aes(x = LONG.1, y = LAT.1, group=LOC), 
+             color = "red",
+             size = 3)
+```
+
+
+
+
+```{r}
+LEUC1_Count_2 <- data.frame(LEUC1_Count_2)
+transformed_data_LEUC1 <- usmap_transform(LEUC1_Count_2)
+plot_usmap("states", include=c("AK")) + 
+  geom_point(data = transformed_data_LEUC1, 
+             aes(x = LONG.1, y = LAT.1, group=LOC, size=n), 
+             color = "red") +
+  ggtitle("LEUC1 per Location")
+```
+
+```{r}
+HAEM1_Count_2 <- data.frame(HAEM1_Count_2)
+transformed_data_HAEM1 <- usmap_transform(HAEM1_Count_2)
+plot_usmap("states", include=c("AK")) + 
+  geom_point(data = transformed_data_HAEM1, 
+             aes(x = LONG.1, y = LAT.1, group=LOC, size=n), 
+             color = "red") +
+  ggtitle("HAEM1 per Location")
+```
+
+```{r}
+PLAS1_Count_2 <- data.frame(PLAS1_Count_2)
+transformed_data_PLAS1 <- usmap_transform(PLAS1_Count_2)
+plot_usmap("states", include=c("AK")) + 
+  geom_point(data = transformed_data_PLAS1, 
+             aes(x = LONG.1, y = LAT.1, group=LOC, size=n), 
+             color = "red") +
+  ggtitle("PLAS1 per Location")
+```

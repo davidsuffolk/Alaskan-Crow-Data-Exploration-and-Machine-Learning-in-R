@@ -1,0 +1,508 @@
+---
+title: "Project_02_RMD"
+author: "David Suffolk"
+date: "4/19/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## DATASET 1 ##  
+## CROW SAMPLING ##
+
+### Data and Libraries ###  
+  
+#### Libraries ####  
+  
+```{r}
+library(ggplot2)
+library(ggmap)
+library(maps)
+library(mapdata)
+library(usmap)
+library(rpart)
+library(rpart.plot)
+```
+  
+#### Import data file ####  
+  
+```{r}
+data <- read.csv("./Project 02/nwCrow_bloodParasites_alaska_smith_2007_2008/nwCrow_sampling_alaska_smith_2007_2008.csv")
+head(data)
+```
+  
+#### Summary of Data ####  
+  
+```{r}
+summary(data)
+```
+
+### Histograms ###  
+
+#### Sex ####  
+1 = Male  
+2 = Female  
+  
+```{r}
+ggplot(data, aes(x=SEX)) + geom_histogram(binwidth=0.75, color="black", fill="white")
+```
+
+#### Location ####  
+  
+```{r}
+ggplot(data, aes(x=LOC)) + geom_histogram(binwidth=0.75, color="black", fill="white", stat="count")
+```
+
+#### Location ####  
+  
+```{r}
+ggplot(data, aes(x=AGE)) + geom_histogram(binwidth=0.75, color="black", fill="white")
+```
+
+#### AKD ####  
+
+Designation given to sampled Northwestern crows based on presence or absence of clinical signs of Avian Keratin Disorder.  
+1 = ABSENT  
+0 = PRESENT  
+  
+```{r}
+ggplot(data, aes(x=AKD)) + geom_histogram(binwidth=0.75, color="black", fill="white")
+```
+  
+#### TARSUS ####  
+
+Diagonal tarsus length (mm) of sampled Northwestern crows
+  
+```{r}
+ggplot(data, aes(x=TARSUS)) + geom_histogram(binwidth=0.75, color="black", fill="white")
+```
+
+#### WING ####  
+
+Unflattened wing chord length (mm) of sampled Northwestern crows
+  
+```{r}
+ggplot(data, aes(x=WING)) + geom_histogram(bins=30, color="black", fill="white")
+```
+
+#### MASS ####  
+
+Mass (g) of sampled Northwestern crows. Blank cells indicate that mass was not measured for that individual
+  
+```{r}
+ggplot(data, aes(x=MASS)) + geom_histogram(bins=30, color="black", fill="white")
+```
+
+## DATASET 2 ##  
+## BLOOD PARASITES ##  
+  
+#### Import data file ####  
+  
+```{r}
+data_2 <- read.csv("./Project 02/nwCrow_bloodParasites_alaska_smith_2007_2008/nwCrow_bloodParasites_alaska_smith_2007_2008.csv")
+head(data_2)
+```
+  
+#### Summary of Data ####  
+  
+```{r}
+summary(data_2)
+```
+
+### Data Cleanup ###
+
+```{r}
+#filter(data_2, data_2$LEUC1 == 0 & data_2$LEUC2 == 0)
+```
+
+### Histograms ###  
+  
+#### LEUC1 ####  
+
+Result from the first replicate of the nested-PCR test for Leucocytozoon parasite infection  
+0 = Negative result: nested-PCR test resulted in no product, single-stranded sequences, or products that could not be assigned via NCBI nucleotide BLAST  
+1 = Positive result: nested-PCR resulted in double-stranded, target mtDNA sequence that was successfully assigned to Leucocytozoon parasite genera via NCBI nucleotide BLAST  
+  
+```{r}
+ggplot(data_2, aes(x=LEUC1)) + geom_histogram(binwidth = 0.75, color="black", fill="white")
+```
+  
+#### LEUC2 ####  
+
+Result from the second replicate of the nested-PCR test for Leucocytozoon parasite infection  
+0 = Negative result: nested-PCR test resulted in no product, single-stranded sequences, or products that could not be assigned via NCBI nucleotide BLAST  
+1 = Positive result: nested-PCR resulted in double-stranded, target mtDNA sequence that was successfully assigned to Leucocytozoon parasite genera via NCBI nucleotide BLAST  
+  
+```{r}
+ggplot(data_2, aes(x=LEUC2)) + geom_histogram(binwidth = 0.75, color="black", fill="white")
+```
+  
+#### HAEM1 ####  
+  
+Result from the first replicate of the nested-PCR test for Haemoproteus parasite infection  
+0 = Negative result: nested-PCR test resulted in no product, single-stranded sequences, or products that could not be assigned via NCBI nucleotide BLAST  
+1 = Positive result: nested-PCR resulted in double-stranded, target mtDNA sequence that was successfully assigned to Haemoproteus parasite genera via NCBI nucleotide BLAST  
+  
+```{r}
+ggplot(data_2, aes(x=HAEM1)) + geom_histogram(binwidth = 0.75, color="black", fill="white")
+```
+  
+#### HAEM2 ####  
+  
+Result from the second replicate of the nested-PCR test for Haemoproteus parasite infection  
+0 = Negative result: nested-PCR test resulted in no product, single-stranded sequences, or products that could not be assigned via NCBI nucleotide BLAST   
+1 = Positive result: nested-PCR resulted in double-stranded, target mtDNA sequence that was successfully assigned to Haemoproteus parasite genera via NCBI nucleotide BLAST  
+  
+```{r}
+ggplot(data_2, aes(x=HAEM2)) + geom_histogram(binwidth = 0.75, color="black", fill="white")
+```
+  
+#### PLAS1 ####  
+  
+Result from the first replicate of the nested-PCR test for Plasmodium parasite infection  
+0 = Negative result: nested-PCR test resulted in no product, single-stranded sequences, or products that could not be assigned via NCBI nucleotide BLAST  
+1 = Positive result: nested-PCR resulted in double-stranded, target mtDNA sequence that was successfully assigned to Plasmodium parasite genera via NCBI nucleotide BLAST  
+  
+```{r}
+ggplot(data_2, aes(x=PLAS1)) + geom_histogram(binwidth = 0.75, color="black", fill="white")
+```
+  
+#### PLAS2 ####  
+  
+Result from the second replicate of the nested-PCR test for Plasmodium parasite infection  
+0 = Negative result: nested-PCR test resulted in no product, single-stranded sequences, or products that could not be assigned via NCBI nucleotide BLAST  
+1 = Positive result: nested-PCR resulted in double-stranded, target mtDNA sequence that was successfully assigned to Plasmodium parasite genera via NCBI nucleotide BLAST 
+  
+```{r}
+ggplot(data_2, aes(x=PLAS2)) + geom_histogram(binwidth = 0.75, color="black", fill="white")
+```
+  
+#### Leuc_GenBank_Accession ####  
+  
+GenBank accession number for Leucocytozoon cytochrome b (cyt b) mitochondrial DNA (mtDNA) target fragment following a positive result from any of two replicates of the nested-PCR. Blank cells signify negative results from all replicates of the nested-PCR  
+  
+```{r}
+ggplot(data_2, aes(x=Leuc_GenBank_Accession)) + geom_histogram(binwidth = 0.75, color="black", fill="white", stat="count")
+```
+  
+#### Haem_GenBank_Accession ####  
+  
+GenBank accession number for Haemoproteus cytochrome b (cyt b) mitochondrial DNA (mtDNA) target fragment following a positive result from any of two replicates of the nested-PCR. Blank cells signify negative results from all replicates of the nested-PCR  
+  
+```{r}
+ggplot(data_2, aes(x=Haem_GenBank_Accession)) + geom_histogram(binwidth = 0.75, color="black", fill="white", stat="count")
+```
+  
+#### Plas_GenBank_Accession ####  
+  
+GenBank accession number for Plasmodium cytochrome b (cyt b) mitochondrial DNA (mtDNA) target fragment following a positive result from any of two replicates of the nested-PCR. Blank cells signify negative results from all replicates of the nested-PCR  
+  
+```{r}
+ggplot(data_2, aes(x=Plas_GenBank_Accession)) + geom_histogram(binwidth = 0.75, color="black", fill="white", stat="count")
+```
+  
+### Merge Datasets ###  
+  
+```{r}
+de <- merge(data, data_2, by=0, all=TRUE)
+head(de)
+```
+  
+### Covariance ###  
+  
+Create variables
+  
+```{r}
+SEX = de$SEX
+LOC = de$LOC
+AGE = de$AGE
+AKD = de$AKD
+TARSUS = de$TARSUS
+WING = de$WING
+MASS = de$MASS
+LEUC1 = de$LEUC1
+HAEM1 = de$HAEM1
+PLAS1 = de$PLAS1
+```  
+  
+#### AKD ####  
+  
+```{r}
+cov(SEX,AKD)
+ggplot(de, aes(x=SEX, y=AKD)) +
+  geom_point(size=2, shape=23)
+```
+  
+```{r}
+cov(AGE,AKD)
+```
+  
+```{r}
+cov(TARSUS,AKD)
+```
+  
+```{r}
+cov(WING,AKD)
+```
+
+```{r}
+cov(MASS,AKD)
+```
+  
+#### LEUC1 ####
+  
+```{r}
+cov(SEX,LEUC1)
+```
+  
+```{r}
+cov(AGE,LEUC1)
+```
+  
+```{r}
+cov(TARSUS,LEUC1)
+```
+  
+```{r}
+cov(WING,LEUC1)
+```
+
+```{r}
+cov(MASS,LEUC1)
+```
+  
+#### HAEM1 ####  
+  
+```{r}
+cov(SEX,HAEM1)
+```
+  
+```{r}
+cov(AGE,HAEM1)
+```
+  
+```{r}
+cov(TARSUS,HAEM1)
+```
+  
+```{r}
+cov(WING,HAEM1)
+```
+
+```{r}
+cov(MASS,HAEM1)
+```
+
+
+#### PLAS1 ####  
+
+```{r}
+cov(SEX,PLAS1)
+```
+  
+```{r}
+cov(AGE,PLAS1)
+```
+  
+```{r}
+cov(TARSUS,PLAS1)
+```
+  
+```{r}
+cov(WING,PLAS1)
+```
+
+```{r}
+cov(MASS,PLAS1)
+```  
+  
+  
+### Correlation Coefficient ###   
+  
+#### AKD ####  
+  
+```{r}
+cor(SEX,AKD)
+```
+  
+```{r}
+cor(AGE,AKD)
+```
+  
+```{r}
+cor(TARSUS,AKD)
+```
+  
+```{r}
+cor(WING,AKD)
+```
+
+```{r}
+cor(MASS,AKD)
+```
+  
+#### LEUC1 ####
+  
+```{r}
+cor(SEX,LEUC1)
+```
+  
+```{r}
+cor(AGE,LEUC1)
+```
+  
+```{r}
+cor(TARSUS,LEUC1)
+```
+  
+```{r}
+cor(WING,LEUC1)
+```
+
+```{r}
+cor(MASS,LEUC1)
+```
+  
+#### HAEM1 ####  
+  
+```{r}
+cor(SEX,HAEM1)
+```
+  
+```{r}
+cor(AGE,HAEM1)
+```
+  
+```{r}
+cor(TARSUS,HAEM1)
+```
+  
+```{r}
+cor(WING,HAEM1)
+```
+
+```{r}
+cor(MASS,HAEM1)
+```
+
+
+#### PLAS1 ####  
+
+```{r}
+cor(SEX,PLAS1)
+```
+  
+```{r}
+cor(AGE,PLAS1)
+```
+  
+```{r}
+cor(TARSUS,PLAS1)
+```
+  
+```{r}
+cor(WING,PLAS1)
+```
+
+```{r}
+cor(MASS,PLAS1)
+```    
+  
+  
+# AKD and Pathogens - Correlation Coefficients ###
+```{r}
+cor(AKD,LEUC1)
+``` 
+
+```{r}
+cor(AKD,HAEM1)
+``` 
+
+```{r}
+cor(AKD,PLAS1)
+```   
+  
+# AKD and Pathogens - Covariance ###
+```{r}
+cov(AKD,LEUC1)
+``` 
+
+```{r}
+cov(AKD,HAEM1)
+``` 
+
+```{r}
+cov(AKD,PLAS1)
+```  
+  
+  
+### LM on LEUC1 ###  
+  
+```{r}
+LEUC1_LM <- lm(LEUC1~LOC+SEX+AGE+AKD+TARSUS+WING+MASS+HAEM1+PLAS1, data=de)
+summary(LEUC1_LM)
+```
+  
+Positive P values:  
+Most are negative or close to zero  
+  
+### LM on HAEM1 ###  
+  
+```{r}
+HAEM1_LM <- lm(HAEM1~LOC+SEX+AGE+AKD+TARSUS+WING+MASS+LEUC1+PLAS1, data=de)
+summary(HAEM1_LM)
+```
+  
+Positive P values:  
+Most are negative or close to zero  
+  
+### LM on PLAS1 ###  
+  
+```{r}
+PLAS1_LM <- lm(PLAS1~LOC+SEX+AGE+AKD+TARSUS+WING+MASS+LEUC1+HAEM1, data=de)
+summary(PLAS1_LM)
+```
+  
+Positive P values:  
+Most are negative or close to zero 
+  
+### LM on AKD ###  
+  
+```{r}
+AKD_LM <- lm(AKD~LOC+SEX+AGE+PLAS1+TARSUS+WING+MASS+LEUC1+HAEM1, data=de)
+summary(AKD_LM)
+```
+  
+Positive P values:  
+Most are negative or close to zero 
+  
+### LM on AKD with Pathogens ###  
+  
+```{r}
+AKD_LM_2 <- lm(AKD~PLAS1+LEUC1+HAEM1, data=de)
+summary(AKD_LM_2)
+```
+  
+### LM on PLAS1 with AKD and Pathogens ###  
+  
+```{r}
+PLAS1_LM_2 <- lm(PLAS1~AKD+LEUC1+HAEM1, data=de)
+summary(PLAS1_LM_2)
+```
+ 
+### LM on LEUC1 with AKD and Pathogens ###  
+  
+```{r}
+LEUC1_LM_2 <- lm(LEUC1~PLAS1+AKD+HAEM1, data=de)
+summary(LEUC1_LM_2)
+```
+
+### LM on HAEM1 with AKD and Pathogens ###  
+  
+```{r}
+HAEM1_LM_2 <- lm(HAEM1~PLAS1+LEUC1+AKD, data=de)
+summary(HAEM1_LM_2)
+```
+  

@@ -1,0 +1,254 @@
+---
+title: "Logistic Regression"
+author: "David Suffolk"
+date: "5/3/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Logistic Regression #
+
+### Import Data ###  
+
+```{r}
+library(caTools)
+library(ggplot2)
+library(ROCR)
+data <- read.csv("./Project 02/nwCrow_bloodParasites_alaska_smith_2007_2008/nwCrow_sampling_alaska_smith_2007_2008.csv")
+data_2 <- read.csv("./Project 02/nwCrow_bloodParasites_alaska_smith_2007_2008/nwCrow_bloodParasites_alaska_smith_2007_2008.csv")
+de <- merge(data, data_2, by=0, all=TRUE)
+head(de)
+```
+
+### One Hot Encoding ###
+
+```{r}
+for(unique_value in unique(de$LOC)){
+ 
+
+de[paste("LOC", unique_value, sep = ".")] <- ifelse(de$LOC == unique_value, 1, 0)
+
+}
+head(de)
+```
+
+### Filter Columns and N/A Values###
+
+```{r}
+de <- de[,c(7,8,9,10,11,12,14,16,18,23,24,25,26,27,28)]
+de<-de[complete.cases(de),]
+head(de)
+```
+
+
+## AKD ##
+
+
+```{r}
+mylogit <- glm(AKD ~ SEX + AGE + TARSUS + WING + MASS + LEUC1 + HAEM1 + PLAS1 + LOC.SEWA + LOC.KENA + LOC.VALD + LOC.HAIN + LOC.JUNE + LOC.HOME, data = de, family = "binomial")
+summary(mylogit)
+```
+  
+  
+```{r}
+confint.default(mylogit)
+```
+
+```{r}
+dat <- data.frame(table(de$AKD, de$AGE))
+names(dat) <- c("AKD","AGE","Count")
+ggplot(data=dat, aes(x=AKD, y=Count, fill=AGE)) + geom_bar(stat="identity")
+```
+
+```{r}
+dat <- data.frame(table(de$AKD, de$MASS))
+names(dat) <- c("AKD","MASS","Count")
+#ggplot(data=dat, aes(x=AKD, y=Count, fill=MASS)) + geom_bar(stat="identity")
+
+ggplot(de, aes(x = AKD, y = MASS)) +
+    geom_point()
+
+ggplot(de, aes(x = AKD, y = TARSUS)) +
+    geom_point()
+```
+  
+```{r}  
+ggplot(de, aes(x = MASS, y = TARSUS, color=AKD)) +
+    geom_point()
+```
+  
+```{r}
+set.seed(88)
+split <- sample.split(de$AKD, SplitRatio = 0.75)
+dresstrain <- subset(de, split == TRUE)
+dresstest <- subset(de, split == FALSE)
+model <- glm (AKD ~ SEX + AGE + TARSUS + WING + MASS + LEUC1 + HAEM1 + PLAS1 + LOC.SEWA + LOC.KENA + LOC.VALD + LOC.HAIN + LOC.JUNE + LOC.HOME, data = dresstrain, family = "binomial")
+summary(model)
+predict <- predict(model, type = 'response')
+tab2 <- table(dresstrain$AKD, predict > 0.5)
+tab2
+```
+
+```{r}
+# Misclassification
+incorrect <- 1 - sum(diag(tab2)) / sum(tab2)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+```{r}
+#ROCR Curve
+ROCRpred <- prediction(predict, dresstrain$AKD)
+ROCRperf <- performance(ROCRpred, 'tpr','fpr')
+plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
+```
+  
+```{r}
+#plot glm
+ggplot(dresstrain, aes(x=AGE, y=AKD)) + geom_point() + 
+stat_smooth(method="glm", family="binomial", se=FALSE)
+```
+
+### LEUC1 ###  
+
+```{r}
+mylogit <- glm(LEUC1 ~ SEX + AGE + TARSUS + WING + MASS + AKD + HAEM1 + PLAS1 + LOC.SEWA + LOC.KENA + LOC.VALD + LOC.HAIN + LOC.JUNE + LOC.HOME, data = de, family = "binomial")
+summary(mylogit)
+```
+  
+  
+```{r}
+confint.default(mylogit)
+```
+
+```{r}
+dat <- data.frame(table(de$LEUC1, de$LOC.KENA))
+names(dat) <- c("LEUC1","KENA","Count")
+ggplot(data=dat, aes(x=LEUC1, y=Count, fill=KENA)) + geom_bar(stat="identity")
+```
+  
+```{r}
+set.seed(88)
+split <- sample.split(de$LEUC1, SplitRatio = 0.75)
+dresstrain <- subset(de, split == TRUE)
+dresstest <- subset(de, split == FALSE)
+model <- glm (LEUC1 ~ SEX + AGE + TARSUS + WING + MASS + AKD + HAEM1 + PLAS1 + LOC.SEWA + LOC.KENA + LOC.VALD + LOC.HAIN + LOC.JUNE + LOC.HOME, data = dresstrain, family = "binomial")
+summary(model)
+predict <- predict(model, type = 'response')
+tab2 <- table(dresstrain$LEUC1, predict > 0.5)
+tab2
+```
+
+```{r}
+# Misclassification
+incorrect <- 1 - sum(diag(tab2)) / sum(tab2)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+```{r}
+#ROCR Curve
+library(ROCR)
+ROCRpred <- prediction(predict, dresstrain$LEUC1)
+ROCRperf <- performance(ROCRpred, 'tpr','fpr')
+plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
+```
+
+
+### HAEM1 ###  
+
+```{r}
+mylogit <- glm(HAEM1 ~ SEX + AGE + TARSUS + WING + MASS + LEUC1 + AKD + PLAS1 + LOC.SEWA + LOC.KENA + LOC.VALD + LOC.HAIN + LOC.JUNE + LOC.HOME, data = de, family = "binomial")
+summary(mylogit)
+```
+  
+  
+```{r}
+confint.default(mylogit)
+```
+
+```{r}
+dat <- data.frame(table(de$HAEM1, de$LOC.KENA))
+names(dat) <- c("HAEM1","KENA","Count")
+ggplot(data=dat, aes(x=HAEM1, y=Count, fill=KENA)) + geom_bar(stat="identity")
+```
+  
+```{r}
+set.seed(88)
+split <- sample.split(de$HAEM1, SplitRatio = 0.75)
+dresstrain <- subset(de, split == TRUE)
+dresstest <- subset(de, split == FALSE)
+model <- glm (HAEM1 ~ SEX + AGE + TARSUS + WING + MASS + LEUC1 + AKD + PLAS1 + LOC.SEWA + LOC.KENA + LOC.VALD + LOC.HAIN + LOC.JUNE + LOC.HOME, data = dresstrain, family = "binomial")
+summary(model)
+predict <- predict(model, type = 'response')
+tab2 <- table(dresstrain$HAEM1, predict > 0.5)
+tab2
+```
+
+```{r}
+# Misclassification
+incorrect <- 1 - sum(diag(tab2)) / sum(tab2)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+```{r}
+#ROCR Curve
+ROCRpred <- prediction(predict, dresstrain$HAEM1)
+ROCRperf <- performance(ROCRpred, 'tpr','fpr')
+plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
+```
+
+
+### PLAS1 ###  
+
+```{r}
+mylogit <- glm(PLAS1 ~ SEX + AGE + TARSUS + WING + MASS + LEUC1 + HAEM1 + AKD + LOC.SEWA + LOC.KENA + LOC.VALD + LOC.HAIN + LOC.JUNE + LOC.HOME, data = de, family = "binomial")
+summary(mylogit)
+```
+  
+```{r}
+confint.default(mylogit)
+```
+
+```{r}
+dat <- data.frame(table(de$PLAS1, de$HAEM1))
+names(dat) <- c("PLAS1","HAEM1","Count")
+ggplot(data=dat, aes(x=PLAS1, y=Count, fill=HAEM1)) + geom_bar(stat="identity")
+```
+
+```{r}
+dat <- data.frame(table(de$PLAS1, de$LOC.HAIN))
+names(dat) <- c("PLAS1","HAIN","Count")
+ggplot(data=dat, aes(x=PLAS1, y=Count, fill=HAIN)) + geom_bar(stat="identity")
+```
+  
+```{r}
+set.seed(88)
+split <- sample.split(de$PLAS1, SplitRatio = 0.75)
+dresstrain <- subset(de, split == TRUE)
+dresstest <- subset(de, split == FALSE)
+model <- glm (PLAS1 ~ SEX + AGE + TARSUS + WING + MASS + LEUC1 + HAEM1 + AKD + LOC.SEWA + LOC.KENA + LOC.VALD + LOC.HAIN + LOC.JUNE + LOC.HOME, data = dresstrain, family = "binomial")
+summary(model)
+predict <- predict(model, type = 'response')
+tab2 <- table(dresstrain$PLAS1, predict > 0.5)
+tab2
+```
+
+```{r}
+# Misclassification
+incorrect <- 1 - sum(diag(tab2)) / sum(tab2)
+correct<- 100*(1 - incorrect)
+correct
+```
+
+```{r}
+#ROCR Curve
+ROCRpred <- prediction(predict, dresstrain$PLAS1)
+ROCRperf <- performance(ROCRpred, 'tpr','fpr')
+plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2,1.7))
+```
+ 
